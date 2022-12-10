@@ -8,9 +8,7 @@ program main
     use minres, only : minres_info_t
     implicit none
 
-    integer,  parameter    :: k = 100    ! size of matrix the matrix A
-    integer,  parameter    :: nz = 3*k-2 ! number of nonzero elements in A
-
+    integer,  parameter    :: k = 100   ! size of matrix the matrix A
     integer,  allocatable  :: irow(:)   ! row indices of nonzero elements
     integer,  allocatable  :: icol(:)   ! col indices of nonzero elements
     real(dp), allocatable  :: a(:)      ! value of nonzero elements
