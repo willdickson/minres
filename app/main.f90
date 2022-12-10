@@ -7,9 +7,8 @@ program main
     implicit none
 
 
-    integer,  parameter    :: n = 5
-    integer,  parameter    :: sz = n*3 - 2
-    !integer,  parameter    :: sz = n
+    integer,  parameter    :: n = 80000 
+    integer,  parameter    :: sz = 3*n - 2
     integer,  allocatable  :: irow(:)
     integer,  allocatable  :: icol(:)
     real(dp), allocatable  :: a(:)
@@ -21,6 +20,9 @@ program main
 
     integer                :: i, j
     integer                :: cnt
+    integer                :: nout
+    real(dp)               :: err
+
 
     allocate(irow(sz))
     allocate(icol(sz))
@@ -37,55 +39,30 @@ program main
     icol = 0
     irow = 0
 
-    ! Create A matrix
     cnt = 0
-    do i = 1, n 
+    do i = 1, n
         cnt = cnt + 1
-        a(cnt) = 2.0
-        irow(cnt) = i
         icol(cnt) = i
-    end do
+        irow(cnt) = i
+        a(i) = 1.0_dp
+    end do 
     do i = 1, n-1
         cnt = cnt + 1
-        a(cnt) = 0.5
-        irow(cnt) = i
-        icol(cnt) = i+1  
-        cnt = cnt + 1
-        a(cnt) = 0.5
-        irow(cnt) = i+1
         icol(cnt) = i
-    end do 
-
-    print *, ''
-    print *, 'matrix A'
-    print *, '-----------------------------------'
-    do i = 1, size(a)
-        print *, irow(i), icol(i), a(i)
+        irow(cnt) = i+1
+        a(i) = 2.0_dp
+        cnt = cnt + 1
+        icol(cnt) = i+1
+        irow(cnt) = i
+        a(i) = 2.0_dp
     end do
-    print *, ''
 
-    ! Create x vector
     do i = 1, n
-        x(i) = 1.0
+        x(i) = 1.0_dp
     end do
 
     ! Create vector b
     call sparse_mult(irow, icol, a, x, b)
-
-    print *, 'vector x'
-    print *, '----------------------------------'
-    do i = 1, size(x)
-        print *, i, x(i)
-    end do
-    print *, ''
-
-    print *, 'vector b'
-    print *, '----------------------------------'
-    do i = 1, size(b)
-        print *, i, b(i)
-    end do
-    print *, ''
-
 
     call minres_ez % print
     print *, ''
@@ -97,11 +74,15 @@ program main
 
     call sparse_mult(irow, icol, a, x, y)
 
-    print *, ''
+    err = 0.0_dp
     do i = 1, size(x)
-        print *, i, b(i), y(i) 
-
+        if (i==1) then
+            err = abs(b(i) - y(i))
+        else
+            err = max(b(i) - y(i), err)
+        end if
     end do
+    print *, 'err = ', err
 
 contains
 

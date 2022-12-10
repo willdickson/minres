@@ -139,6 +139,7 @@ contains
             real(dp), intent(in)  :: x(n)
             real(dp), intent(out) :: y(n)
             integer               :: i
+            y = 0.0_dp
             do i  = 1, num 
                 y(irow(i)) = y(irow(i)) + a(i)*x(icol(i))
             end do
@@ -151,6 +152,7 @@ contains
          real(dp), intent(out)   :: y(n)
          integer                 :: i
          ! NOT DONE .. currently prconditioning matrix is I !!!
+         y = 0.0_dp
          do i = 1, num 
              y(i) = x(i)
          end do
