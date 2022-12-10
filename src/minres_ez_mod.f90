@@ -33,23 +33,25 @@ module minres_ez_mod
     end interface minres_ez_t
 
 
-    ! Information from solver.  See minresModule.f90 for further details.
+    ! Information from solver.  See minres_module.f90 for further details.
     type, public :: minres_info_t   
         integer  :: istop  = 0      ! integer giving the reason for termination
         integer  :: itn    = 0      ! number of iterations performed
         real(dp) :: anorm  = 0.0_dp ! estimate of the norm of the matrix operator
         real(dp) :: acond  = 0.0_dp ! estimate of the condition of Abar 
         real(dp) :: rnorm  = 0.0_dp ! estimate of norm of residual vector
+        real(dp) :: arnorm = 0.0_dp ! recognize singular systems ||Ar||
         real(dp) :: ynorm  = 0.0_dp ! estimate of the norm of xbar
     contains
         private
-        !procedure, public :: print => minres_info_print
+        procedure, public :: print => minres_info_print
     end type minres_info_t          
 
 
-
-
 contains
+
+    ! minres_ex_t contructor + methods
+    ! -----------------------------------------------------------------------------------
 
     function minres_ez_constructor(itnlim, nout, precon, checka, rtol) result(minres_ez)
         integer,  optional, intent(in) :: itnlim
@@ -80,23 +82,46 @@ contains
     end function minres_ez_constructor
 
     
-    subroutine minres_ez_solve(this, irow, icol, a, b, num, x, info)
+    subroutine minres_ez_solve(this, irow, icol, a, b, x, info, shift_in)
         class(minres_ez_t), intent(in)   :: this
-        integer, intent(in)              :: irow(:) ! row indices for nonzero items
-        integer, intent(in)              :: icol(:) ! col indices for nonzero items
-        real(dp), intent(in)             :: a(:)    ! values for nonzero items
-        real(dp), intent(in)             :: b(:)    ! the rhs vector b
-        integer, intent(in), optional    :: num     ! the number of nonzero items
-        real(dp), intent(out)            :: x       ! the computed solution 
-        type(minres_info_t), intent(out) :: info    ! information regarding solution
+        integer, intent(in)              :: irow(:)  ! row indices for nonzero items
+        integer, intent(in)              :: icol(:)  ! col indices for nonzero items
+        real(dp), intent(in)             :: a(:)     ! values for nonzero items
+        real(dp), intent(in)             :: b(:)     ! the rhs vector b
+        real(dp), intent(out)            :: x(:)     ! the computed solution 
+        type(minres_info_t), intent(out) :: info     ! information regarding solution
+        real(dp), intent(in), optional   :: shift_in ! shift value (A - shift*I) x = b
 
-        integer  :: num_nz ! number of nonzero elements in a
+        integer  :: num   ! number of nonzero elements in a
+        real(dp) :: shift ! offset shift value
 
-        if (present(num)) then
-            num_nz = num
+
+        if (present(shift_in)) then
+            shift = shift_in
         else
-            num_nz = size(a)
+            shift = 0.0_dp
         end if
+
+        call minres_solver(      &
+                size(b),         & 
+                aprod,           & 
+                msolve,          & 
+                b,               & 
+                shift,           & 
+                this % checka,   &
+                this % precon,   &
+                x,               &
+                this % itnlim,   &  
+                this % nout,     &
+                this % rtol,     &
+                info % istop,    &
+                info % itn,      &
+                info % anorm,    &
+                info % acond,    &
+                info % rnorm,    &
+                info % arnorm,   &
+                info % ynorm     &
+                )
 
 
     contains
@@ -106,8 +131,8 @@ contains
             integer, intent(in)   :: n
             real(dp), intent(in)  :: x(n)
             real(dp), intent(out) :: y(n)
-            integer :: i
-            do i  = 1, num_nz
+            integer               :: i
+            do i  = 1, size(a) 
                 y(irow(i)) = y(irow(i)) + a(i)*x(icol(i))
             end do
         end subroutine aprod
@@ -117,6 +142,11 @@ contains
          integer,  intent(in)    :: n
          real(dp), intent(in)    :: x(n)
          real(dp), intent(out)   :: y(n)
+         integer                 :: i
+         ! NOT DONE .. currently prconditioning matrix is I !!!
+         do i = 1, size(a)
+             y(i) = x(i)
+         end do
        end subroutine Msolve
 
     end subroutine minres_ez_solve 
@@ -124,12 +154,32 @@ contains
 
     subroutine minres_ez_print(this)
         class(minres_ez_t), intent(in) :: this
+        print *, 'minres_ez'
+        print *, '---------------------------------------------------'
         print *, 'itnlim = ', this % itnlim
         print *, 'nout   = ', this % nout  
         print *, 'precon = ', this % precon
         print *, 'checka = ', this % checka
         print *, 'rtol   = ', this % rtol  
     end subroutine minres_ez_print
+
+
+    ! minres_info_t methods
+    ! -----------------------------------------------------------------------------------
+
+    subroutine minres_info_print(this)
+        class(minres_info_t), intent(in) :: this
+
+        print *, 'minres_info'
+        print *, '---------------------------------------------------'
+        print *, 'istop  =', this % istop  
+        print *, 'itn    =', this % itn    
+        print *, 'anorm  =', this % anorm  
+        print *, 'acond  =', this % acond  
+        print *, 'rnorm  =', this % rnorm  
+        print *, 'arnorm =', this % arnorm 
+        print *, 'ynorm  =', this % ynorm  
+    end subroutine minres_info_print
 
 
 end module minres_ez_mod

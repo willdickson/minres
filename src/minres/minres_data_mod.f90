@@ -13,10 +13,19 @@
 
 module minres_data_mod
 
-  implicit none
+    use, intrinsic :: iso_fortran_env, only : dp=>real64
+    implicit none
+    private
 
-  intrinsic                        ::      selected_real_kind
-  integer,       parameter, public :: dp = selected_real_kind(15)
-  real(kind=dp), parameter, public :: zero = 0.0_dp, one = 1.0_dp
+    public :: dp
+    public :: one
+    public :: zero
+
+    real(dp), parameter :: zero = 0.0_dp 
+    real(dp), parameter :: one  = 1.0_dp
+
+    !intrinsic                        ::      selected_real_kind
+    !integer,       parameter, public :: dp = selected_real_kind(15)
+    !real(kind=dp), parameter, public :: zero = 0.0_dp, one = 1.0_dp
 
 end module minres_data_mod
