@@ -567,8 +567,6 @@ contains
        ! where H is the tridiagonal matrix from Lanczos with one
        ! extra row, beta(k+1) e_k^T.
 
-       Acond  = gmax / gmin
-
        ! See if any of the stopping criteria are satisfied.
        ! In rare cases, istop is already -1 from above (Abar = const*I).
 

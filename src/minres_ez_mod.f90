@@ -82,7 +82,7 @@ contains
     end function minres_ez_constructor
 
     
-    subroutine minres_ez_solve(this, irow, icol, a, b, x, info, shift_in)
+    subroutine minres_ez_solve(this, irow, icol, a, b, x, info, num_in, shift_in)
         class(minres_ez_t), intent(in)   :: this
         integer, intent(in)              :: irow(:)  ! row indices for nonzero items
         integer, intent(in)              :: icol(:)  ! col indices for nonzero items
@@ -90,11 +90,19 @@ contains
         real(dp), intent(in)             :: b(:)     ! the rhs vector b
         real(dp), intent(out)            :: x(:)     ! the computed solution 
         type(minres_info_t), intent(out) :: info     ! information regarding solution
+        integer, intent(in), optional    :: num_in   ! number of nonzero items
         real(dp), intent(in), optional   :: shift_in ! shift value (A - shift*I) x = b
 
         integer  :: num   ! number of nonzero elements in a
         real(dp) :: shift ! offset shift value
 
+        real(dp) :: y(size(x))
+
+        if (present(num_in)) then 
+            num = num_in
+        else
+            num = size(a)
+        end if
 
         if (present(shift_in)) then
             shift = shift_in
@@ -123,7 +131,6 @@ contains
                 info % ynorm     &
                 )
 
-
     contains
 
         ! y = A*x
@@ -132,7 +139,7 @@ contains
             real(dp), intent(in)  :: x(n)
             real(dp), intent(out) :: y(n)
             integer               :: i
-            do i  = 1, size(a) 
+            do i  = 1, num 
                 y(irow(i)) = y(irow(i)) + a(i)*x(icol(i))
             end do
         end subroutine aprod
@@ -144,7 +151,7 @@ contains
          real(dp), intent(out)   :: y(n)
          integer                 :: i
          ! NOT DONE .. currently prconditioning matrix is I !!!
-         do i = 1, size(a)
+         do i = 1, num 
              y(i) = x(i)
          end do
        end subroutine Msolve
