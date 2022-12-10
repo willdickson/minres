@@ -153,7 +153,7 @@ contains
          integer                 :: i
          ! NOT DONE .. currently prconditioning matrix is I !!!
          y = 0.0_dp
-         do i = 1, num 
+         do i = 1, n 
              y(i) = x(i)
          end do
        end subroutine Msolve
@@ -163,6 +163,7 @@ contains
 
     subroutine minres_ez_print(this)
         class(minres_ez_t), intent(in) :: this
+        print *, ''
         print *, 'minres_ez'
         print *, '---------------------------------------------------'
         print *, 'itnlim = ', this % itnlim
@@ -170,6 +171,7 @@ contains
         print *, 'precon = ', this % precon
         print *, 'checka = ', this % checka
         print *, 'rtol   = ', this % rtol  
+        print *, ''
     end subroutine minres_ez_print
 
 
@@ -178,7 +180,7 @@ contains
 
     subroutine minres_info_print(this)
         class(minres_info_t), intent(in) :: this
-
+        print *, ''
         print *, 'minres_info'
         print *, '---------------------------------------------------'
         print *, 'istop  =', this % istop  
@@ -188,6 +190,7 @@ contains
         print *, 'rnorm  =', this % rnorm  
         print *, 'arnorm =', this % arnorm 
         print *, 'ynorm  =', this % ynorm  
+        print *, ''
     end subroutine minres_info_print
 
 
