@@ -35,8 +35,8 @@ I've added two things:
 ### Usage
 
 There are two different ways to use this library.  The first is via the
-`minres\_ez\_t` class which provides a simplified interface to the method and the
-second is via the `minres\_solver` subroutine which gives you full control, but
+`minres_ez_t` class which provides a simplified interface to the method and the
+second is via the `minres_solver` subroutine which gives you full control, but
 requires a more work on the part of the user. 
 
 #### minres\_ez\_t
@@ -111,7 +111,7 @@ real(dp) :: ynorm  ! estimate of the norm of xbar
 
 #### minres\_solver
 
-The `minres\_solver` subroutine  (To do ...)
+The `minres_solver` subroutine  (To do ...)
 
 
 ### Compiling
