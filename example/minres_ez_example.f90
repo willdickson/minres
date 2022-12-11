@@ -8,7 +8,7 @@ program main
     use minres, only : minres_info_t
     implicit none
 
-    integer,  parameter    :: k = 100   ! size of matrix the matrix A
+    integer,  parameter    :: k = 1000  ! size of matrix the matrix A
     integer,  allocatable  :: irow(:)   ! row indices of nonzero elements
     integer,  allocatable  :: icol(:)   ! col indices of nonzero elements
     real(dp), allocatable  :: a(:)      ! value of nonzero elements
@@ -22,7 +22,7 @@ program main
 
     ! Print minres_ez configuration
     minres_ez % checka = .true.
-    minres_ez % precon = .true.
+    minres_ez % precon = .false.
     call minres_ez % print()
 
     ! Create system of linear equations Ax=b

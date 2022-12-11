@@ -16,8 +16,8 @@ module minres_ez_mod
 
 
     type, public :: minres_ez_t
-        integer  :: itnlim  = DFLT_ITNLIM ! upper limit on the number of iterations.
-        integer  :: nout    = DFLT_NOUT   ! a file number for iter. summarry (if nout > 0) 
+        integer  :: itnlim  = DFLT_ITNLIM ! upper limit on the nnzber of iterations.
+        integer  :: nout    = DFLT_NOUT   ! a file nnzber for iter. summarry (if nout > 0) 
         logical  :: precon  = DFLT_PRECON ! whether or not to invoke preconditioning 
         logical  :: checka  = DFLT_CHECKA ! whether or not to check if matrix A is symmetric 
         real(dp) :: rtol    = DFLT_RTOL   ! user-specified residual tolerance 
@@ -36,7 +36,7 @@ module minres_ez_mod
     ! Information from solver.  See minres_module.f90 for further details.
     type, public :: minres_info_t   
         integer  :: istop  = 0      ! integer giving the reason for termination
-        integer  :: itn    = 0      ! number of iterations performed
+        integer  :: itn    = 0      ! nnzber of iterations performed
         real(dp) :: anorm  = 0.0_dp ! estimate of the norm of the matrix operator
         real(dp) :: acond  = 0.0_dp ! estimate of the condition of Abar 
         real(dp) :: rnorm  = 0.0_dp ! estimate of norm of residual vector
@@ -82,7 +82,7 @@ contains
     end function minres_ez_constructor
 
     
-    subroutine minres_ez_solve(this, irow, icol, a, b, x, info, num_in, shift_in)
+    subroutine minres_ez_solve(this, irow, icol, a, b, x, info, nnz_in, shift_in)
         class(minres_ez_t), intent(in)   :: this
         integer, intent(in)              :: irow(:)  ! row indices for nonzero items
         integer, intent(in)              :: icol(:)  ! col indices for nonzero items
@@ -90,24 +90,27 @@ contains
         real(dp), intent(in)             :: b(:)     ! the rhs vector b
         real(dp), intent(out)            :: x(:)     ! the computed solution 
         type(minres_info_t), intent(out) :: info     ! information regarding solution
-        integer, intent(in), optional    :: num_in   ! number of nonzero items
+        integer, intent(in), optional    :: nnz_in   ! number of nonzero items
         real(dp), intent(in), optional   :: shift_in ! shift value (A - shift*I) x = b
 
-        integer  :: num   ! number of nonzero elements in a
-        real(dp) :: shift ! offset shift value
+        integer                          :: nnz   ! number of nonzero elements in a
+        real(dp)                         :: shift ! offset shift value
+        real(dp), allocatable            :: m(:) 
 
-        real(dp) :: y(size(x))
-
-        if (present(num_in)) then 
-            num = num_in
+        if (present(nnz_in)) then 
+            nnz = nnz_in
         else
-            num = size(a)
+            nnz = size(a)
         end if
 
         if (present(shift_in)) then
             shift = shift_in
         else
             shift = 0.0_dp
+        end if
+
+        if (this % precon) then
+            call create_precon(irow, icol, a, nnz, size(b), m)
         end if
 
         call minres_solver(      &
@@ -140,23 +143,23 @@ contains
             real(dp), intent(out) :: y(n)
             integer               :: i
             y = 0.0_dp
-            do i  = 1, num 
+            do i  = 1, nnz 
                 y(irow(i)) = y(irow(i)) + a(i)*x(icol(i))
             end do
         end subroutine aprod
         
-       ! Solve M*y = x
-       subroutine msolve(n,x,y)   
-         integer,  intent(in)    :: n
-         real(dp), intent(in)    :: x(n)
-         real(dp), intent(out)   :: y(n)
-         integer                 :: i
-         ! NOT DONE .. currently prconditioning matrix is I !!!
-         y = 0.0_dp
-         do i = 1, n 
-             y(i) = x(i)
-         end do
-       end subroutine Msolve
+        ! Solve M*y = x
+        subroutine msolve(n,x,y)   
+          integer,  intent(in)    :: n
+          real(dp), intent(in)    :: x(n)
+          real(dp), intent(out)   :: y(n)
+          integer                 :: i
+          ! NOT DONE .. currently prconditioning matrix is I !!!
+          y = 0.0_dp
+          do i = 1, n 
+              y(i) = x(i)/m(i)
+          end do
+        end subroutine Msolve 
 
     end subroutine minres_ez_solve 
 
@@ -193,5 +196,24 @@ contains
         print *, ''
     end subroutine minres_info_print
 
+    ! utility functions
+    ! -----------------------------------------------------------------------------------
+
+    ! Creates a diagonal preconditioner where diagonal elements are from same as A matrix
+    subroutine create_precon(irow, icol, a, nnz, sz, m)
+        integer,  intent(in)                 :: irow(:)
+        integer,  intent(in)                 :: icol(:)
+        real(dp), intent(in)                 :: a(:)
+        integer,  intent(in)                 :: nnz 
+        integer,  intent(in)                 :: sz
+        real(dp), intent(inout), allocatable :: m(:)
+        integer                              :: i
+        allocate(m(sz), source=1.0_dp)
+        do i = 1, nnz
+            if ((irow(i) == icol(i)) .and. (a(i) > epsilon(1.0_dp))) then
+                m(irow(i)) = a(i)
+            end if
+        end do
+    end subroutine create_precon
 
 end module minres_ez_mod
