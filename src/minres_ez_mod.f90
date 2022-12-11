@@ -16,11 +16,11 @@ module minres_ez_mod
 
 
     type, public :: minres_ez_t
-        integer  :: itnlim  = DFLT_ITNLIM ! upper limit on the nnzber of iterations.
-        integer  :: nout    = DFLT_NOUT   ! a file nnzber for iter. summarry (if nout > 0) 
-        logical  :: precon  = DFLT_PRECON ! whether or not to invoke preconditioning 
-        logical  :: checka  = DFLT_CHECKA ! whether or not to check if matrix A is symmetric 
-        real(dp) :: rtol    = DFLT_RTOL   ! user-specified residual tolerance 
+        integer  :: itnlim  = DFLT_ITNLIM ! Upper limit on the nnzber of iterations.
+        integer  :: nout    = DFLT_NOUT   ! A file number for iter. summar (if nout > 0) 
+        logical  :: precon  = DFLT_PRECON ! Whether or not to invoke preconditioning 
+        logical  :: checka  = DFLT_CHECKA ! Whether or not to check if matrix A is symmetric 
+        real(dp) :: rtol    = DFLT_RTOL   ! User-specified residual tolerance 
     contains
         private
         procedure, public :: solve => minres_ez_solve
@@ -82,7 +82,7 @@ contains
     end function minres_ez_constructor
 
     
-    subroutine minres_ez_solve(this, irow, icol, a, b, x, info, nnz_in, shift_in)
+    subroutine minres_ez_solve(this, irow, icol, a, b, x, info, nnz, shift)
         class(minres_ez_t), intent(in)   :: this
         integer, intent(in)              :: irow(:)  ! row indices for nonzero items
         integer, intent(in)              :: icol(:)  ! col indices for nonzero items
@@ -90,27 +90,27 @@ contains
         real(dp), intent(in)             :: b(:)     ! the rhs vector b
         real(dp), intent(out)            :: x(:)     ! the computed solution 
         type(minres_info_t), intent(out) :: info     ! information regarding solution
-        integer, intent(in), optional    :: nnz_in   ! number of nonzero items
-        real(dp), intent(in), optional   :: shift_in ! shift value (A - shift*I) x = b
+        integer, intent(in), optional    :: nnz      ! number of nonzero items
+        real(dp), intent(in), optional   :: shift    ! shift value (A - shift*I) x = b
 
-        integer                          :: nnz   ! number of nonzero elements in a
-        real(dp)                         :: shift ! offset shift value
+        integer                          :: nnz_   ! number of nonzero elements in a
+        real(dp)                         :: shift_ ! offset shift value
         real(dp), allocatable            :: m(:) 
 
-        if (present(nnz_in)) then 
-            nnz = nnz_in
+        if (present(nnz)) then 
+            nnz_ = nnz
         else
-            nnz = size(a)
+            nnz_ = size(a)
         end if
 
-        if (present(shift_in)) then
-            shift = shift_in
+        if (present(shift)) then
+            shift_ = shift
         else
-            shift = 0.0_dp
+            shift_ = 0.0_dp
         end if
 
         if (this % precon) then
-            call create_precon(irow, icol, a, nnz, size(b), m)
+            call create_precon(irow, icol, a, nnz_, size(b), m)
         end if
 
         call minres_solver(      &
@@ -118,7 +118,7 @@ contains
                 aprod,           & 
                 msolve,          & 
                 b,               & 
-                shift,           & 
+                shift_,          & 
                 this % checka,   &
                 this % precon,   &
                 x,               &
@@ -143,7 +143,7 @@ contains
             real(dp), intent(out) :: y(n)
             integer               :: i
             y = 0.0_dp
-            do i  = 1, nnz 
+            do i  = 1, nnz_ 
                 y(irow(i)) = y(irow(i)) + a(i)*x(icol(i))
             end do
         end subroutine aprod

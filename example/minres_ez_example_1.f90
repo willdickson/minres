@@ -21,8 +21,10 @@ program minres_ez_example_1
     real(dp)            :: x(n)        ! the solution vector x
 
     ! Set some options
-    minres_ez % rtol   = 1.0e-13
-    minres_ez % checka = .true.  
+    minres_ez % itnlim  = 100          ! Upper limit on the nnzber of iterations.
+    minres_ez % precon  = .false.      ! Whether or not to invoke preconditioning 
+    minres_ez % checka  = .true.       ! Whether or not to check if matrix A is symmetric 
+    minres_ez % rtol    = 1.0e-13_dp   ! User-specified residual tolerance 
 
     ! display settings
     call minres_ez % print()

@@ -70,8 +70,10 @@ program minres_ez_example_1
     real(dp)            :: x(n)        ! the solution vector x
 
     ! Set some options
-    minres_ez % rtol   = 1.0e-13
-    minres_ez % checka = .true.  
+    minres_ez % itnlim  = 100          ! Upper limit on the nnzber of iterations.
+    minres_ez % precon  = .false.      ! Whether or not to invoke preconditioning 
+    minres_ez % checka  = .true.       ! Whether or not to check if matrix A is symmetric 
+    minres_ez % rtol    = 1.0e-13_dp   ! User-specified residual tolerance 
 
     ! display settings
     call minres_ez % print()
@@ -83,10 +85,29 @@ program minres_ez_example_1
     call minres_info % print()
 
 end program minres_ez_example_1
-
 ```
 
+Two additional optional arguments can be passed to the solve method nnz and shift. 
 
+```fortran
+integer,  intent(in), optional   :: nnz      ! number of nonzero items
+real(dp), intent(in), optional   :: shift    ! shift value (A - shift*I) x = b
+```
+If nnz is not specified the minres\_ez\_t class assumes the number of nonzero
+elements in A is equal to size(a).  If this is not the case, e.g. the number of
+nonzero elements is less then size(a), then nnz can be specified. 
+
+The minres_info_t type contains the following members. 
+
+```fortran
+integer  :: istop  ! integer giving the reason for termination
+integer  :: itn    ! nnzber of iterations performed
+real(dp) :: anorm  ! estimate of the norm of the matrix operator
+real(dp) :: acond  ! estimate of the condition of Abar 
+real(dp) :: rnorm  ! estimate of norm of residual vector
+real(dp) :: arnorm ! recognize singular systems ||Ar||
+real(dp) :: ynorm  ! estimate of the norm of xbar
+```
 
 
 ### Compiling
