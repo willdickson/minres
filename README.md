@@ -1,5 +1,5 @@
-![MINRES](media/logo.png)
-=========================
+![MINRES](media/logo_smaller.png)
+=================================
 
 An implementation of the Minimum Residual Method (MINRES) based on the original
 fortran 90 code by Chris Paige, Sou-Cheng Choi, and Michael Saunders. 
