@@ -35,11 +35,11 @@ I've added two things:
 ### Usage
 
 There are two different ways to use this library.  The first is via the
-minres\_ez\_t class which provides a simplified interface to the method and the
-second is via the minres_solver function which give you more control, but
-requires a bit more work on the part of the user. 
+`minres\_ez\_t` class which provides a simplified interface to the method and the
+second is via the `minres\_solver` subroutine which gives you full control, but
+requires a more work on the part of the user. 
 
-#### minres_ez_t
+#### `minres\_ez\_t`
 
 To use the `minres_ez_t` class, you have to provide the matrix `A` in sparse
 form, using three arrays: the row indices, column indices, and the nonzero
@@ -108,6 +108,10 @@ real(dp) :: rnorm  ! estimate of norm of residual vector
 real(dp) :: arnorm ! recognize singular systems ||Ar||
 real(dp) :: ynorm  ! estimate of the norm of xbar
 ```
+
+#### `minres\_solver`
+
+The `minres\_solver` subroutine  (To do ...)
 
 
 ### Compiling
