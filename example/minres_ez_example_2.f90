@@ -1,7 +1,8 @@
-program main
+program minres_ez_example_2 
     ! 
     ! Example program demonstrating the use of minres_ez_t to solve 
-    ! linear systems of the form Ax = b and (A - shift*I)x = b
+    ! linear systems of the form Ax = b and (A - shift*I)x = b where
+    ! A is symmetric.
     ! 
     use, intrinsic :: iso_fortran_env, only : dp=>real64
     use minres, only : minres_ez_t
@@ -126,4 +127,4 @@ contains
     end subroutine sparse_mul
 
 
-end program main
+end program minres_ez_example_2 
