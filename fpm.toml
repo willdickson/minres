@@ -1,9 +1,9 @@
 name = "minres"
 version = "0.1.0"
-license = "license"
-author = "Jane Doe"
-maintainer = "jane.doe@example.com"
-copyright = "Copyright 2022, Jane Doe"
+license = "MIT"
+author = "Will Dickson"
+maintainer = "wbd@caltech.edu"
+copyright = "Copyright 2022, Will Dickson"
 
 [build]
 auto-executables = true
