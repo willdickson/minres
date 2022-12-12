@@ -7,8 +7,4 @@ module minres
     implicit none
     public
 
-    !public :: minres_solver
-    !public :: minres_ez_t
-    !public :: minres_info_t
-
 end module minres
