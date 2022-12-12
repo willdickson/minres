@@ -5,10 +5,10 @@ module minres
     use minres_ez_mod,  only : minres_info_t
 
     implicit none
-    private
+    public
 
-    public :: minres_solver
-    public :: minres_ez_t
-    public :: minres_info_t
+    !public :: minres_solver
+    !public :: minres_ez_t
+    !public :: minres_info_t
 
 end module minres
