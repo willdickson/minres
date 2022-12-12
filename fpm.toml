@@ -4,9 +4,14 @@ license = "license"
 author = "Jane Doe"
 maintainer = "jane.doe@example.com"
 copyright = "Copyright 2022, Jane Doe"
+
 [build]
 auto-executables = true
 auto-tests = true
 auto-examples = true
+
+[library]
+source-dir = "src"
+
 [install]
-library = false
+library = true
